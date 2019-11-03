@@ -30,12 +30,13 @@ open class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
     /**
      Initializer specifying the interval directly
      - Parameters:
-     - interval: The interval which the emitter will update the current time and date
+        - interval: The interval which the emitter will update the current time and date
+        - startTimer: Allows opting out of starting the timer during initialization
      */
-    public init(updatedEvery interval: TimeInterval = defaultTickInterval) {
+    public init(updatedEvery interval: TimeInterval = defaultTickInterval, startTimer: Bool = true) {
         self.interval = interval
         time = TimeKeeper()
-        startTimer()
+        if startTimer { self.startTimer() }
     }
     
     /**
