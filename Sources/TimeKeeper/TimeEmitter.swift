@@ -34,8 +34,9 @@ open class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
         - startTimer: Allows opting out of starting the timer during initialization
      */
     public init(updatedEvery interval: TimeInterval = defaultTickInterval, startTimer: Bool = true) {
+        self.timer = nil
         self.interval = interval
-        time = TimeKeeper()
+        self.time = TimeKeeper()
         if startTimer { self.startTimer() }
     }
     
