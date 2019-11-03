@@ -14,7 +14,7 @@ import Combine
  */
 @available(OSX 10.15, *)
 @available(iOS 13.0, *)
-public class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
+open class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
     
     /// The current time to emit with accessors to all time components
     @Published public var time: TimeKeeper
