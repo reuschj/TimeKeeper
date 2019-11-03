@@ -12,13 +12,11 @@ import Combine
 /**
  Emits the current time and clock hand position at the specified time interval
  */
+@available(iOS 13.0, *)
 public class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
     
     /// The current time to emit with accessors to all time components
     @Published public var time: TimeKeeper
-    
-    /// Outputs hand rotation to emit in degrees or radians
-    @Published public var handController: ClockHandController!
     
     /// The time interval on which to emit the current time and hand rotations
     public var interval: TimeInterval {
@@ -32,13 +30,10 @@ public class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
      Initializer specifying the interval directly
      - Parameters:
      - interval: The interval which the emitter will update the current time and date
-     - rotationOutput: The desired rotation output unit, degrees or radians
      */
-    public init(updatedEvery interval: TimeInterval = defaultTickInterval, rotationOutput: RotationUnit = .degrees) {
+    public init(updatedEvery interval: TimeInterval = defaultTickInterval) {
         self.interval = interval
         time = TimeKeeper()
-        handController = nil
-        handController = ClockHandController(using: time, output: rotationOutput)
         startTimer()
     }
     
@@ -47,7 +42,7 @@ public class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
      - Parameters:
      - interval: The interval which the emitter will update the current time and date
      */
-    func startTimer(withTimeInterval interval: TimeInterval) {
+    public func startTimer(withTimeInterval interval: TimeInterval) {
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] timer in
             self?.update()
@@ -59,7 +54,7 @@ public class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
      - Parameters:
      - interval: The interval which the emitter will update the current time and date
      */
-    func startTimer() {
+    public func startTimer() {
         startTimer(withTimeInterval: interval)
     }
     
@@ -73,12 +68,12 @@ public class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
     }
     
     /// Stops the timer
-    func stopTimer() {
+    public func stopTimer() {
         timer?.invalidate()
     }
     
     /// Updates the time and emits
-    func update() {
+    public func update() {
         time.update()
         objectWillChange.send()
     }
