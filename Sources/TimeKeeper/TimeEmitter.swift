@@ -44,8 +44,13 @@ public class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
      */
     public func startTimer(withTimeInterval interval: TimeInterval) {
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] timer in
-            self?.update()
+        if #available(iOS 10.0, *) {
+            timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { [weak self] timer in
+                self?.update()
+            })
+        } else {
+            // Fallback on earlier versions
+            Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.update), repeats: true)
         }
     }
     
