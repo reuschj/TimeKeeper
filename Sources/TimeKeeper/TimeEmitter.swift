@@ -12,6 +12,7 @@ import Combine
 /**
  Emits the current time and clock hand position at the specified time interval
  */
+@available(OSX 10.15, *)
 @available(iOS 13.0, *)
 public class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
     
@@ -44,14 +45,9 @@ public class TimeEmitter: ObservableObject, Timed, Updatable, Hashable {
      */
     public func startTimer(withTimeInterval interval: TimeInterval) {
         timer?.invalidate()
-        if #available(iOS 10.0, *) {
-            timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { [weak self] timer in
-                self?.update()
-            })
-        } else {
-            // Fallback on earlier versions
-            Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.update), repeats: true)
-        }
+        timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { [weak self] timer in
+            self?.update()
+        })
     }
     
     /**

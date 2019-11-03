@@ -246,9 +246,16 @@ public class TimeKeeper: Timed, Updatable {
      */
     public func startTimer(withTimeInterval interval: TimeInterval) {
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { [weak self] timer in
-            self?.update()
-        })
+        if #available(iOS 10.0, *), #available(OSX 10.12, *) {
+            print("Started timer")
+            timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { [weak self] timer in
+                self?.update()
+            })
+        } else {
+            // Fallback on earlier versions
+            print("Started timer with legacy")
+            timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
+        }
     }
     
     /*
@@ -270,7 +277,7 @@ public class TimeKeeper: Timed, Updatable {
      Called every time the timer fires, this refreshes the date property with the current date
      Or, can be called from an external Timer
      */
-    public func update() {
+    @objc public func update() {
         date = Date()
     }
     
