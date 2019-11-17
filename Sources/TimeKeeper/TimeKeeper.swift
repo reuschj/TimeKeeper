@@ -14,10 +14,10 @@ import Foundation
 public class TimeKeeper: Timed, Updatable {
     
     /// Stores the current date
-    private var date: Date
+    public private(set) var date: Date
     
     /// The stored system calendar
-    private let calendar: Calendar
+    public let calendar: Calendar
     
     /// The timer which will drive any updates
     private var timer: Timer?
