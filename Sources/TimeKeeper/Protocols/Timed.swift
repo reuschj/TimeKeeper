@@ -1,6 +1,6 @@
 //
 //  Timed.swift
-//  AnalogClock
+//  TimeKeeper
 //
 //  Created by Justin Reusch on 2/27/19.
 //  Copyright © 2019 Justin Reusch. All rights reserved.

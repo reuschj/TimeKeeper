@@ -1,6 +1,6 @@
 //
 //  IntervalEmitter.swift
-//  AnalogClock
+//  TimeKeeper
 //
 //  Created by Justin Reusch on 11/3/19.
 //  Copyright © 2019 Justin Reusch. All rights reserved.

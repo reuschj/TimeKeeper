@@ -1,17 +1,18 @@
 //
 //  TimeKeeper.swift
-//  AnalogClock
+//  TimeKeeper
 //
 //  Created by Justin Reusch on 2/5/19.
 //  Copyright © 2019 Justin Reusch. All rights reserved.
 //
 
 import Foundation
+import DecimalTime
 
 /**
  A class to hold a time and date that updates itself on a regular interval
  */
-public class TimeKeeper: Timed, Updatable {
+public class TimeKeeper: Timed, Updatable, CustomStringConvertible {
     
     /// Stores the current date
     public private(set) var date: Date
@@ -21,6 +22,22 @@ public class TimeKeeper: Timed, Updatable {
     
     /// The timer which will drive any updates
     private var timer: Timer?
+    
+    /// Decimal time - Will not be initialized unless called for
+    public lazy var decimalTime: DecimalTime? = { [unowned self] in
+        self.decimalTimeInitialized = true
+        return DecimalTime(from: self.date, using: self.calendar)!
+    }()
+    // The two properties below provide an internal way to access the decimal time without initializing it
+    private var decimalTimeInitialized: Bool = false
+    // When not not initialized, this property will be `nil` and will _not_ initialize the time. After initialization, this will return the decimal time
+    private var _decimalTime: DecimalTime? {
+        get {
+            guard decimalTimeInitialized else { return nil }
+            return self.decimalTime
+        }
+        set { if let newValue = newValue { self.decimalTime = newValue } }
+    }
     
     /// Computed property extracting date components from the current date based on the current calendar
     private var dateComponents: DateComponents {
@@ -92,12 +109,15 @@ public class TimeKeeper: Timed, Updatable {
      */
     
     /// A date string with month, day and year, formatted using the current locale
-    public var dateString: String? {
+    public var dateString: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         let day = weekdayName ?? ""
         return "\(day)\(day.isEmpty ? "" : ", ")\(formatter.string(from: date))"
     }
+    
+    /// A date string with month, day and year, formatted using the current locale
+    public var description: String { dateString }
     
     /*
      Hours
@@ -125,6 +145,8 @@ public class TimeKeeper: Timed, Updatable {
         return String(hour12)
     }
     
+    // 24 hour ------ /
+    
     /// The current hour for a 24-hour clock
     public var hour24: Int? { dateComponents.hour }
     
@@ -132,6 +154,17 @@ public class TimeKeeper: Timed, Updatable {
     public var hour24String: String? {
         guard let hour24 = hour24 else { return nil }
         return padTimeUnit(hour24)
+    }
+    
+    // Decimal hour ------ /
+    
+    /// The current hour for a decimal clock
+    public var hourDecimal: Int? { decimalTime?.hours }
+    
+    /// The current hour for a decimal clock, converted to a padded, 2-digit `String`
+    public var hourDecimalString: String? {
+        guard let hourDecimal = hourDecimal else { return nil }
+        return padTimeUnit(hourDecimal)
     }
     
     /*
@@ -165,6 +198,17 @@ public class TimeKeeper: Timed, Updatable {
         return padTimeUnit(minute)
     }
     
+    // Decimal minute ------ /
+    
+    /// The current minute for a decimal clock
+    public var minuteDecimal: Int? { decimalTime?.minutes }
+    
+    /// The current decimal minute, converted to a padded, 2-digit `String`
+    public var paddedDecimalMinute: String? {
+        guard let minuteDecimal = minuteDecimal else { return nil }
+        return padTimeUnit(minuteDecimal)
+    }
+    
     /*
      Second
      -----------------------------------------------
@@ -179,6 +223,8 @@ public class TimeKeeper: Timed, Updatable {
         return padTimeUnit(second)
     }
     
+    // Precise second ------ /
+    
     /// The current second plus nanoseconds
     public var preciseSecond: Double? {
         Double(dateComponents.second ?? 0) + (Double(dateComponents.nanosecond ?? 0) / 1_000_000_000)
@@ -190,8 +236,30 @@ public class TimeKeeper: Timed, Updatable {
         return padTimeUnit(Int(round(preciseSecond)))
     }
     
+    // Decimal second ------ /
+    
+    /// The current decimal  second
+    public var secondDecimal: Int? { decimalTime?.seconds }
+    
+    /// The current decimal  second, converted to a padded, 2-digit `String`
+    public var paddedDecimalSecond: String? {
+        guard let secondDecimal = secondDecimal else { return nil }
+        return padTimeUnit(secondDecimal)
+    }
+    
+    // Precise decimal second ------ /
+    
+    /// The current decimal second with remainder
+    public var preciseSecondDecimal: Double? { decimalTime?.secondsWithRemainder }
+    
+    /// The current decimal second with remainder, converted to a rounded, 2-digit, padded `String`
+    public var paddedPreciseDecimalSecond: String? {
+        guard let preciseSecondDecimal = preciseSecondDecimal else { return nil }
+        return padTimeUnit(Int(round(preciseSecondDecimal)))
+    }
+    
     /*
-     Sub-second
+     Milliseconds
      -----------------------------------------------
      */
     
@@ -201,8 +269,23 @@ public class TimeKeeper: Timed, Updatable {
         return nanosecond / 1_000_000
     }
     
+    /// The current decimal  milliseconds
+    public var millisecondDecimal: Int? { decimalTime?.milliseconds }
+    
+    // Decimal millisecond ------ /
+    
+    /*
+     Nanoseconds
+     -----------------------------------------------
+     */
+    
     /// The current nanoseconds
     public var nanosecond: Int? { dateComponents.nanosecond }
+    
+    // Decimal nanosecond ------ /
+    
+    /// The current decimal  nanoseconds
+    public var nanosecondDecimal: Int? { decimalTime?.nanoseconds }
     
     /*
      Other
@@ -212,8 +295,17 @@ public class TimeKeeper: Timed, Updatable {
     /// Every second alternates between tick and tock
     public var tickTock: TickTock? {
         guard let second = dateComponents.second else { return nil }
-        return second % 2 == 0 ? .tick : .tock
+        return (second != 0 && second % 2 == 0) ? .tick : .tock
     }
+    
+    // Decimal tick-tock ------ /
+    
+    /// Every second alternates between tick and tock (for decimal time)
+    public var tickTock: TickTock? {
+        guard let second = decimalTime?.seconds else { return nil }
+        return (second != 0 && second % 2 == 0) ? .tick : .tock
+    }
+    
     
     /*
      Initializers
@@ -229,8 +321,7 @@ public class TimeKeeper: Timed, Updatable {
     
     /**
      Initializer with own timer
-     - Parameters:
-     - interval: The interval which the emitter will update the current time and date
+     - Parameter interval: The interval which the emitter will update the current time and date
      */
     public init(updatedEvery interval: TimeInterval = defaultTickInterval) {
         date = Date()
@@ -239,10 +330,23 @@ public class TimeKeeper: Timed, Updatable {
         startTimer(withTimeInterval: interval)
     }
     
+    /*
+     Methods
+     -----------------------------------------------
+     */
+    
+    /**
+     Called to update time, this refreshes the date property with the current date
+     Will be called every time the timer fires, or can be called from an external `Timer`
+     */
+    public func update() {
+        date = Date()
+        _decimalTime?.setTime(from: date, using: calendar)
+    }
+    
     /**
      Creates a timer
-     - Parameters:
-     - interval: The interval which the emitter will update the current time and date
+     - Parameter interval: The interval which the emitter will update the current time and date
      */
     public func startTimer(withTimeInterval interval: TimeInterval) {
         timer?.invalidate()
@@ -254,7 +358,7 @@ public class TimeKeeper: Timed, Updatable {
         } else {
             // Fallback on earlier versions
             print("Started timer with legacy")
-            timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
+            timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.updateTimer), userInfo: nil, repeats: true)
         }
     }
     
@@ -275,10 +379,9 @@ public class TimeKeeper: Timed, Updatable {
     
     /**
      Called every time the timer fires, this refreshes the date property with the current date
-     Or, can be called from an external Timer
      */
-    @objc public func update() {
-        date = Date()
+    @objc public func updateTimer() {
+        self.update()
     }
     
 }

@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "DecimalTime",
+        "repositoryURL": "https://github.com/reuschj/DecimalTime",
+        "state": {
+          "branch": null,
+          "revision": "da59dcef0c46baaf901eb2e232b157bd81a9e363",
+          "version": "0.0.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
