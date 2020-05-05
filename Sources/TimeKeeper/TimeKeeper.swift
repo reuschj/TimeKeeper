@@ -301,7 +301,7 @@ public class TimeKeeper: Timed, Updatable, CustomStringConvertible {
     // Decimal tick-tock ------ /
     
     /// Every second alternates between tick and tock (for decimal time)
-    public var tickTock: TickTock? {
+    public var tickTockDecimal: TickTock? {
         guard let second = decimalTime?.seconds else { return nil }
         return (second != 0 && second % 2 == 0) ? .tick : .tock
     }
@@ -341,7 +341,7 @@ public class TimeKeeper: Timed, Updatable, CustomStringConvertible {
      */
     public func update() {
         date = Date()
-        _decimalTime?.setTime(from: date, using: calendar)
+        _ = _decimalTime?.setTime(from: date, using: calendar)
     }
     
     /**

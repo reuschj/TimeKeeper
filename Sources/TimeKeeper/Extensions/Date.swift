@@ -13,12 +13,4 @@ extension Date {
     func dateComponents(_ components: Set<Calendar.Component>, from calendar: Calendar = Calendar.current) -> DateComponents {
         calendar.dateComponents(components, from: self)
     }
-    
-    // Calculates the time interval in seconds of the current time from midnight of the same day
-    func timeIntervalSinceMidnight(from calendar: Calendar = Calendar.current) -> TimeInterval? {
-        let now = Date()
-        let dateComponents = now.dateComponents([.year, .month, .day, .timeZone])
-        guard let midnight = calendar.date(from: dateComponents) else { return nil }
-        return now.timeIntervalSince(midnight)
-    }
 }
