@@ -26,7 +26,7 @@ public class TimeKeeper: Timed, Updatable, CustomStringConvertible {
     /// Decimal time - Will not be initialized unless called for
     public lazy var decimalTime: DecimalTime? = { [unowned self] in
         self.decimalTimeInitialized = true
-        return DecimalTime(from: self.date, using: self.calendar)!
+        return DecimalTime(from: self.date, using: self.calendar)
     }()
     // The two properties below provide an internal way to access the decimal time without initializing it
     private var decimalTimeInitialized: Bool = false
@@ -341,7 +341,7 @@ public class TimeKeeper: Timed, Updatable, CustomStringConvertible {
      */
     public func update() {
         date = Date()
-        _ = _decimalTime?.setTime(from: date, using: calendar)
+        _ = _decimalTime?.setTime(from: date)
     }
     
     /**
