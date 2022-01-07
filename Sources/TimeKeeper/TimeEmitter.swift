@@ -14,6 +14,7 @@ import Combine
  */
 @available(OSX 10.15, *)
 @available(iOS 13.0, *)
+@available(watchOS 6.0, *)
 public class TimeEmitter: IntervalEmitter {
     
     /// The current time to emit with accessors to all time components
