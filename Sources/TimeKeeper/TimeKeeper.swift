@@ -350,7 +350,9 @@ public class TimeKeeper: Timed, Updatable, CustomStringConvertible {
      */
     public func startTimer(withTimeInterval interval: TimeInterval) {
         timer?.invalidate()
-        if #available(iOS 10.0, *), #available(OSX 10.12, *) {
+        if #available(iOS 10.0, *),
+           #available(OSX 10.12, *),
+           #available(watchOS 3.0, *) {
             print("Started timer")
             timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { [weak self] timer in
                 self?.update()

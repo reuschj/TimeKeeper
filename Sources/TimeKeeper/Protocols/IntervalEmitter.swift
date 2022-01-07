@@ -14,6 +14,7 @@ import Combine
  */
 @available(OSX 10.15, *)
 @available(iOS 13.0, *)
+@available(watchOS 6.0, *)
 public protocol IntervalEmitter: ObservableObject, Timed, Updatable, Hashable {
     
     /// The time interval on which to emit the current time and hand rotations
@@ -28,6 +29,7 @@ public protocol IntervalEmitter: ObservableObject, Timed, Updatable, Hashable {
  */
 @available(OSX 10.15, *)
 @available(iOS 13.0, *)
+@available(watchOS 6.0, *)
 extension IntervalEmitter {
     /**
      Starts the timer with the specified interval and sets it's update action
